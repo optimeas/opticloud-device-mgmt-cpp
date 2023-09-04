@@ -67,9 +67,11 @@ public:
 
     void setProtocolVersion(const ProtocolVersion newProtocolVersion);
     void setRequestType(RequestType newRequestType);
+    RequestType requestType();
 
     // To set the upload content, please use one of the following functions (but NOT both)
     void setUploadFilename(const std::string& fileNameWithPath);
+    std::string uploadFileName() const;
     void setUploadData(const char *data,  long size = -1, const std::string &filename = "omCloudService-0.xml");
 
     // To get the output content, please use one of the following functions (but NOT both)
@@ -89,6 +91,7 @@ public:
 
     // used in RETURN_FILE to support multiple timelines
     void setReturnFileTag(const std::string &newReturnFileTag);
+    void setSslVerification(bool enable = true);
 
     float transferDuration_s() const;
     uint64_t transferSpeed_BytesPerSecond() const;

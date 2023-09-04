@@ -19,8 +19,6 @@ SingleEntryTransfer::SingleEntryTransfer(const cu::Logger &logger, const std::sh
         m_messageId = -1;
         if(transfer->asyncResult() != curl::AsyncResult::CURL_DONE)
         {
-            logger->error(fmt::format("transfer failed with error: {}", transfer->asyncResult()));
-
             switch(transfer->asyncResult())
             {
             case curl::AsyncResult::NONE:
@@ -44,8 +42,6 @@ SingleEntryTransfer::SingleEntryTransfer(const cu::Logger &logger, const std::sh
 
         if(transfer->curlResult() != CURLE_OK)
         {
-            logger->error(fmt::format("curl error {}", curl_easy_strerror(transfer->curlResult())));
-
             m_result = CURL_ERROR;
             m_curlResult = transfer->curlResult();
 
@@ -72,6 +68,11 @@ void SingleEntryTransfer::setProtocolVersion(const ProtocolVersion newProtocolVe
 void SingleEntryTransfer::setRequestType(RequestType newRequestType)
 {
     m_requestType = newRequestType;
+}
+
+SingleEntryTransfer::RequestType SingleEntryTransfer::requestType()
+{
+    return m_requestType;
 }
 
 void SingleEntryTransfer::setUploadFilename(const std::string &fileNameWithPath)
@@ -155,7 +156,7 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     m_transfer->setHeader("Pragma", "no-cache"); // HTTP 1.0
 
     if(m_connectionParameters->disableSslVerification)
-        m_transfer->setSslVerfication(false);
+        m_transfer->setSslVerification(false);
 
     if(!m_connectionParameters->hostAlias.empty())
         m_transfer->setHeader("Host", m_connectionParameters->hostAlias);
@@ -263,9 +264,19 @@ void SingleEntryTransfer::parseResponse()
         m_cloudCallback(this);
 }
 
+std::string SingleEntryTransfer::uploadFileName() const
+{
+    return m_uploadFileName;
+}
+
 void SingleEntryTransfer::setReturnFileTag(const std::string &newReturnFileTag)
 {
     m_returnFileTag = newReturnFileTag;
+}
+
+void SingleEntryTransfer::setSslVerification(bool enable)
+{
+    m_transfer->setSslVerification(enable);
 }
 
 float SingleEntryTransfer::transferDuration_s() const
