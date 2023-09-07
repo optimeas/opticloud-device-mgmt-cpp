@@ -1,4 +1,5 @@
 #include "opticloud-device-mgmt-cpp/singleentrytransfer.hpp"
+#include "libcurl-wrapper/urlutils.hpp"
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -105,9 +106,10 @@ void SingleEntryTransfer::setOutputFilename(const std::string &fileNameWithPath)
 
 std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
 {
-    if(m_connectionParameters->url.empty())
+    std::string url = m_connectionParameters->url;
+    if(curl::urlReplacePath(url, "status.php", false) == false) // overwrite path only when it does not exist
     {
-        std::string errMsg = "url is empty";
+        std::string errMsg = "bad url";
         m_logger->error(errMsg);
         throw std::invalid_argument(errMsg);
     }
@@ -147,7 +149,7 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     const auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     std::string timestamp = std::to_string(secondsSinceUnixEpoch);
 
-    std::string url = m_connectionParameters->url + "?F=" + request + "&ID=" + m_connectionParameters->accessToken + "&P=" + protocolVersion + "&T=" + timestamp;
+    url += "?F=" + request + "&ID=" + m_connectionParameters->accessToken + "&P=" + protocolVersion + "&T=" + timestamp;
     m_transfer->setUrl(url);
     m_transfer->setFollowRedirects(true);
     m_transfer->setProgressTimeout_s(m_connectionParameters->progressTimeout_s);
@@ -155,8 +157,8 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     m_transfer->setHeader("Cache-Control", "no-cache, no-store"); // HTTP 1.1
     m_transfer->setHeader("Pragma", "no-cache"); // HTTP 1.0
 
-    if(m_connectionParameters->disableSslVerification)
-        m_transfer->setSslVerification(false);
+    m_transfer->setVerifySslCertificates(m_connectionParameters->doVerifySslCertificates);
+    m_transfer->setReuseExistingConnection(m_connectionParameters->doReuseExistingConnection);
 
     if(!m_connectionParameters->hostAlias.empty())
         m_transfer->setHeader("Host", m_connectionParameters->hostAlias);
@@ -264,6 +266,16 @@ void SingleEntryTransfer::parseResponse()
         m_cloudCallback(this);
 }
 
+std::shared_ptr<ConnectionParameters> SingleEntryTransfer::connectionParameters() const
+{
+    return m_connectionParameters;
+}
+
+void SingleEntryTransfer::setConnectionParameters(const std::shared_ptr<ConnectionParameters> &newConnectionParameters)
+{
+    m_connectionParameters = newConnectionParameters;
+}
+
 std::string SingleEntryTransfer::uploadFileName() const
 {
     return m_uploadFileName;
@@ -272,11 +284,6 @@ std::string SingleEntryTransfer::uploadFileName() const
 void SingleEntryTransfer::setReturnFileTag(const std::string &newReturnFileTag)
 {
     m_returnFileTag = newReturnFileTag;
-}
-
-void SingleEntryTransfer::setSslVerification(bool enable)
-{
-    m_transfer->setSslVerification(enable);
 }
 
 float SingleEntryTransfer::transferDuration_s() const

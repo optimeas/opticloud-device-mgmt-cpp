@@ -91,11 +91,13 @@ public:
 
     // used in RETURN_FILE to support multiple timelines
     void setReturnFileTag(const std::string &newReturnFileTag);
-    void setSslVerification(bool enable = true);
 
     float transferDuration_s() const;
     uint64_t transferSpeed_BytesPerSecond() const;
     uint64_t transferredBytes() const;
+
+    std::shared_ptr<ConnectionParameters> connectionParameters() const;
+    void setConnectionParameters(const std::shared_ptr<ConnectionParameters> &newConnectionParameters);
 
 private:
     std::string mimeTypeFromFileExtension(const std::string &filenameWithPath);
