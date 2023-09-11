@@ -95,6 +95,7 @@ public:
     float transferDuration_s() const;
     uint64_t transferSpeed_BytesPerSecond() const;
     uint64_t transferredBytes() const;
+    void setLogPrefix(const std::string &newLogPrefix);
 
     std::shared_ptr<ConnectionParameters> connectionParameters() const;
     void setConnectionParameters(const std::shared_ptr<ConnectionParameters> &newConnectionParameters);

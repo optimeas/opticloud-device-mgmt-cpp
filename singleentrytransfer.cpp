@@ -1,5 +1,5 @@
 #include "opticloud-device-mgmt-cpp/singleentrytransfer.hpp"
-#include "libcurl-wrapper/urlutils.hpp"
+#include "libcurl-wrapper/curlurl.hpp"
 
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -106,10 +106,17 @@ void SingleEntryTransfer::setOutputFilename(const std::string &fileNameWithPath)
 
 std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
 {
-    std::string url = m_connectionParameters->url;
-    if(curl::urlReplacePath(url, "status.php", false) == false) // overwrite path only when it does not exist
+    curl::Url urlObject(m_connectionParameters->url);
+    if(!urlObject.isValid())
     {
         std::string errMsg = "bad url";
+        m_logger->error(errMsg);
+        throw std::invalid_argument(errMsg);
+    }
+
+    if(!urlObject.setPage("status.php", false))
+    {
+        std::string errMsg = "failed to change page of url";
         m_logger->error(errMsg);
         throw std::invalid_argument(errMsg);
     }
@@ -149,6 +156,7 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     const auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     std::string timestamp = std::to_string(secondsSinceUnixEpoch);
 
+    std::string url = urlObject.toString();
     url += "?F=" + request + "&ID=" + m_connectionParameters->accessToken + "&P=" + protocolVersion + "&T=" + timestamp;
     m_transfer->setUrl(url);
     m_transfer->setFollowRedirects(true);
@@ -299,6 +307,12 @@ uint64_t SingleEntryTransfer::transferSpeed_BytesPerSecond() const
 uint64_t SingleEntryTransfer::transferredBytes() const
 {
     return m_transfer->transferredBytes();
+}
+
+void SingleEntryTransfer::setLogPrefix(const std::string &newLogPrefix)
+{
+    m_transfer->setLogPrefix(newLogPrefix);
+    m_transfer->setProgressLogging_s(10);
 }
 
 int SingleEntryTransfer::messageId() const
