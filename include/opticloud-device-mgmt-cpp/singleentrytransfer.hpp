@@ -65,7 +65,9 @@ public:
     explicit SingleEntryTransfer(const cu::Logger& logger, const std::shared_ptr<ConnectionParameters>& connectionParameters);
     ~SingleEntryTransfer();
 
+    void setSerialNumber(const std::string &newSerialNumber);
     void setProtocolVersion(const ProtocolVersion newProtocolVersion);
+
     void setRequestType(RequestType newRequestType);
     RequestType requestType();
 
@@ -113,6 +115,7 @@ private:
     CURLcode   m_curlResult{CURL_LAST}; // result from the curl transfer; only valid if LegacyResult == CURL_ERROR
     long m_httpResponseCode{0};
 
+    std::string m_serialNumber;
     ProtocolVersion m_protocolVersion{V4};
     RequestType m_requestType{PING};
 

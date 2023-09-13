@@ -158,7 +158,10 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
 
     std::string url = urlObject.toString();
     url += "?F=" + request + "&ID=" + m_connectionParameters->accessToken + "&P=" + protocolVersion + "&T=" + timestamp;
+    if(!m_serialNumber.empty())
+        url += "&SN=" + m_serialNumber;
     m_transfer->setUrl(url);
+
     m_transfer->setFollowRedirects(true);
     m_transfer->setProgressTimeout_s(m_connectionParameters->progressTimeout_s);
 
@@ -272,6 +275,11 @@ void SingleEntryTransfer::parseResponse()
 
     if(m_cloudCallback)
         m_cloudCallback(this);
+}
+
+void SingleEntryTransfer::setSerialNumber(const std::string &newSerialNumber)
+{
+    m_serialNumber = newSerialNumber;
 }
 
 std::shared_ptr<ConnectionParameters> SingleEntryTransfer::connectionParameters() const
