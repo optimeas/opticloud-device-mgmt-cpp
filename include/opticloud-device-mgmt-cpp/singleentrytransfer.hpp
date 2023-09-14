@@ -81,6 +81,7 @@ public:
     void setOutputFilename(const std::string& fileNameWithPath);
 
     std::shared_ptr<curl::CurlAsyncTransfer> prepareTransfer();
+    std::shared_ptr<curl::CurlHttpTransfer> transfer() const;
 
     void setCloudCallback(const SingleEntryCallback &newCloudCallback);
     TransferResult result() const;

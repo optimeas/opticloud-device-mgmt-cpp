@@ -277,6 +277,11 @@ void SingleEntryTransfer::parseResponse()
         m_cloudCallback(this);
 }
 
+std::shared_ptr<curl::CurlHttpTransfer> SingleEntryTransfer::transfer() const
+{
+    return m_transfer;
+}
+
 void SingleEntryTransfer::setSerialNumber(const std::string &newSerialNumber)
 {
     m_serialNumber = newSerialNumber;
