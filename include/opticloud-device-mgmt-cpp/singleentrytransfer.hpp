@@ -17,7 +17,8 @@ public:
     enum ProtocolVersion
     {
         V4,
-        V5  // separate firmware update task
+        V5, // serial number in PING content
+        V6  // separate firmware update task
     };
 
     enum RequestType
@@ -65,7 +66,6 @@ public:
     explicit SingleEntryTransfer(const cu::Logger& logger, const std::shared_ptr<ConnectionParameters>& connectionParameters);
     ~SingleEntryTransfer();
 
-    void setSerialNumber(const std::string &newSerialNumber);
     void setProtocolVersion(const ProtocolVersion newProtocolVersion);
 
     void setRequestType(RequestType newRequestType);
@@ -116,7 +116,6 @@ private:
     CURLcode   m_curlResult{CURL_LAST}; // result from the curl transfer; only valid if LegacyResult == CURL_ERROR
     long m_httpResponseCode{0};
 
-    std::string m_serialNumber;
     ProtocolVersion m_protocolVersion{V4};
     RequestType m_requestType{PING};
 

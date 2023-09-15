@@ -149,6 +149,7 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     {
     case V4: protocolVersion = "v4"; break;
     case V5: protocolVersion = "v5"; break;
+    case V6: protocolVersion = "v6"; break;
     }
 
     // Since C++20 the start time of the system_clock is no longer unspecified, instead it is defined as UNIX-epoch (1970-01-01 00:00:00 UTC)
@@ -158,8 +159,6 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
 
     std::string url = urlObject.toString();
     url += "?F=" + request + "&ID=" + m_connectionParameters->accessToken + "&P=" + protocolVersion + "&T=" + timestamp;
-    if(!m_serialNumber.empty())
-        url += "&SN=" + m_serialNumber;
     m_transfer->setUrl(url);
 
     m_transfer->setFollowRedirects(true);
@@ -280,11 +279,6 @@ void SingleEntryTransfer::parseResponse()
 std::shared_ptr<curl::CurlHttpTransfer> SingleEntryTransfer::transfer() const
 {
     return m_transfer;
-}
-
-void SingleEntryTransfer::setSerialNumber(const std::string &newSerialNumber)
-{
-    m_serialNumber = newSerialNumber;
 }
 
 std::shared_ptr<ConnectionParameters> SingleEntryTransfer::connectionParameters() const
