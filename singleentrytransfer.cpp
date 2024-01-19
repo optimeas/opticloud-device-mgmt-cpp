@@ -17,7 +17,10 @@ SingleEntryTransfer::SingleEntryTransfer(const cu::Logger &logger, const std::sh
 {
     m_transfer->setTransferCallback([&](curl::CurlAsyncTransfer *transfer)
     {
-        m_messageId = -1;
+        // clear / prepare for next Transfer
+        m_messageToken.clear();
+        m_transfer->clearHeaders();
+
         if(transfer->asyncResult() != curl::AsyncResult::CURL_DONE)
         {
             switch(transfer->asyncResult())
@@ -176,10 +179,10 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     if(!m_outputFileName.empty())
         m_transfer->setOutputFilename(m_outputFileName);
 
-    if(m_messageId > 0)
+    if(!m_messageToken.empty())
     {
-        std::string contentDescription = fmt::format("Message-ID: {}", m_messageId);
-        m_messageId = -1; // try to prevent wrong usage
+        std::string contentDescription = fmt::format("Message-ID: {}", m_messageToken);
+        m_messageToken.clear(); // try to prevent wrong usage
 
         if((m_requestType == RETURN_FILE) && (!m_returnFileTag.empty()))
         {
@@ -260,12 +263,12 @@ void SingleEntryTransfer::parseResponse()
         std::string contentDescription = m_transfer->responseHeader("Content-Description");
         if(!contentDescription.empty())
         {
-            auto const regexSplit = std::regex(R"(Message-ID: *([-+]?[[:digit:]]+))", std::regex_constants::icase);
+            auto const regexSplit = std::regex(R"(Message-ID: *([[:print:]]+))", std::regex_constants::icase);
             std::smatch matches;
             if(std::regex_search(contentDescription, matches, regexSplit))
             {
                 if(matches.size() == 2)
-                     m_messageId = stoi(matches[1].str());
+                     m_messageToken = matches[1].str();
             }
         }
     }
@@ -322,14 +325,14 @@ void SingleEntryTransfer::setLogPrefix(const std::string &newLogPrefix)
     m_transfer->setProgressLogging_s(10);
 }
 
-int SingleEntryTransfer::messageId() const
+std::string SingleEntryTransfer::messageToken() const
 {
-    return m_messageId;
+    return m_messageToken;
 }
 
-void SingleEntryTransfer::setMessageId(int newMessageId)
+void SingleEntryTransfer::setMessageToken(const std::string &newMessageToken)
 {
-    m_messageId = newMessageId;
+    m_messageToken = newMessageToken;
 }
 
 long SingleEntryTransfer::httpResponseCode() const

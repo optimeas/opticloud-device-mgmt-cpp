@@ -89,8 +89,8 @@ public:
     long httpResponseCode() const;
 
     // used to match response to request
-    int messageId() const;
-    void setMessageId(int newMessageId);
+    std::string messageToken() const;
+    void setMessageToken(const std::string &newMessageToken);
 
     // used in RETURN_FILE to support multiple timelines
     void setReturnFileTag(const std::string &newReturnFileTag);
@@ -128,7 +128,8 @@ private:
 
     curl_mime *m_multiPartContainer{nullptr};
 
-    int m_messageId{-1}; // according to Oleh: 1 .. 2^31 - 1
+    std::string m_messageToken;  // The cloud currently uses an int32 implementation (like the former PHP Cloud and older CloudService versions). Value range: according to Oleh: 1 .. 2^31 - 1
+                                 // However, since there are regular overflows with a cloud-wide global 32-bit value, which is stored in the database for months/years, we are preparing for a changeover in the future from version 22.16 onwards.
     std::string m_returnFileTag;
 };
 
