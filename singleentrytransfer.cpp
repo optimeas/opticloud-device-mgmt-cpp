@@ -145,6 +145,7 @@ std::shared_ptr<curl::CurlAsyncTransfer> SingleEntryTransfer::prepareTransfer()
     case ACKNOWLEDGMENT_FIRMWARE_UPDATE: request = "ACKNOWLEDGMENT_FIRMWARE_UPDATE"; break;
     case PROGRESS_FIRMWARE_UPDATE:       request = "PROGRESS_FIRMWARE_UPDATE";       break;
     case RETURN_FIRMWARE_UPDATE:         request = "RETURN_FIRMWARE_UPDATE";         break;
+    case RETURN_ABORT_ASYNCHRONOUS_TASK: request = "RETURN_CANCEL";                  break;
     }
 
     std::string protocolVersion;
@@ -257,6 +258,8 @@ void SingleEntryTransfer::parseResponse()
             m_result = TASK_SCPI_APPLICATION;
         else if(contentType.compare("application/om-firmware-update") == 0)
             m_result = TASK_FIRMWARE_UPDATE;
+        else if(contentType.compare("application/om-cancel") == 0)
+            m_result = ABORT_ASYNCHRONOUS_TASK;
         else
             m_result = UNKNOWN_RESPONSE;
 

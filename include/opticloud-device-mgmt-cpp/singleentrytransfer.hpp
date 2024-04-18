@@ -32,10 +32,11 @@ public:
         RETURN_LIST,
         RETURN_FILE,
 
-        // v5 protocol extension
+        // v6 protocol extension
         ACKNOWLEDGMENT_FIRMWARE_UPDATE,
         PROGRESS_FIRMWARE_UPDATE,
-        RETURN_FIRMWARE_UPDATE
+        RETURN_FIRMWARE_UPDATE,
+        RETURN_ABORT_ASYNCHRONOUS_TASK
     };
 
     enum TransferResult
@@ -59,8 +60,9 @@ public:
         TASK_SCPI_DEVICE_MANAGER,
         TASK_SCPI_APPLICATION,
 
-        // v5 protocol extension
-        TASK_FIRMWARE_UPDATE
+        // v6 protocol extension
+        TASK_FIRMWARE_UPDATE,
+        ABORT_ASYNCHRONOUS_TASK
     };
 
     explicit SingleEntryTransfer(const cu::Logger& logger, const std::shared_ptr<ConnectionParameters>& connectionParameters);
