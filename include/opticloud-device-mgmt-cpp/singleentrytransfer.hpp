@@ -75,7 +75,7 @@ public:
 
     // To set the upload content, please use one of the following functions (but NOT both)
     void setUploadFilename(const std::string& fileNameWithPath);
-    std::string uploadFileName() const;
+    std::string const& uploadFileName() const;
     void setUploadData(const char *data,  long size = -1, const std::string &filename = "omCloudService-0.xml");
 
     // To get the output content, please use one of the following functions (but NOT both)
@@ -91,7 +91,7 @@ public:
     long httpResponseCode() const;
 
     // used to match response to request
-    std::string messageToken() const;
+    std::string const& messageToken() const;
     void setMessageToken(const std::string &newMessageToken);
 
     // used in RETURN_FILE to support multiple timelines

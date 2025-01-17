@@ -15,7 +15,7 @@ SingleEntryTransfer::SingleEntryTransfer(const cu::Logger &logger, const std::sh
     , m_connectionParameters(connectionParameters)
     , m_transfer(std::make_shared<curl::CurlHttpTransfer>(logger))
 {
-    m_transfer->setTransferCallback([&](curl::CurlAsyncTransfer *transfer)
+    m_transfer->setTransferCallback([&](const curl::CurlAsyncTransfer *transfer)
     {
         // clear / prepare for next Transfer
         m_messageToken.clear();
@@ -297,7 +297,7 @@ void SingleEntryTransfer::setConnectionParameters(const std::shared_ptr<Connecti
     m_connectionParameters = newConnectionParameters;
 }
 
-std::string SingleEntryTransfer::uploadFileName() const
+const std::string &SingleEntryTransfer::uploadFileName() const
 {
     return m_uploadFileName;
 }
@@ -328,7 +328,7 @@ void SingleEntryTransfer::setLogPrefix(const std::string &newLogPrefix)
     m_transfer->setProgressLogging_s(10);
 }
 
-std::string SingleEntryTransfer::messageToken() const
+const std::string &SingleEntryTransfer::messageToken() const
 {
     return m_messageToken;
 }
